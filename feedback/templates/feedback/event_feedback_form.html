@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block title %}
+  {% if update %}
+    {% trans "Update Feedback" %} - {{ event.title }}
+  {% else %}
+    {% trans "Event Feedback" %} - {{ event.title }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          {% if update %}
+            <h4>{% trans "Update Your Feedback" %}</h4>
+          {% else %}
+            <h4>{% trans "Rate This Event" %}</h4>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ event.title }}</h5>
+          <p class="card-text text-muted">
+            <i class="fa fa-calendar"></i> {{ event.date|date:"F j, Y" }} |
+            <i class="fa fa-map-marker"></i> {{ event.location }} |
+            <i class="fa fa-user-tie"></i> {% trans "Organized by" %}: {{ event.organizer.get_full_name|default:event.organizer.username }}
+          </p>
+          
+          <form method="post">
+            {% csrf_token %}
+            
+            <!-- Star Rating Widget -->
+            {% include "feedback/star_rating_widget.html" %}
+            
+            <!-- Comment Field -->
+            {% bootstrap_field form.comment %}
+            
+            <div class="form-group mt-4">
+              <button type="submit" class="btn btn-primary">
+                {% if update %}
+                  {% trans "Update Feedback" %}
+                {% else %}
+                  {% trans "Submit Feedback" %}
+                {% endif %}
+              </button>
+              <a href="{% url 'events:event_detail' pk=event.id %}" class="btn btn-outline-secondary">
+                {% trans "Cancel" %}
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

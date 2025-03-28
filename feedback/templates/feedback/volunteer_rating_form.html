@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block title %}
+  {% if update %}
+    {% trans "Update Volunteer Rating" %} - {{ volunteer.get_full_name }}
+  {% else %}
+    {% trans "Rate Volunteer" %} - {{ volunteer.get_full_name }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          {% if update %}
+            <h4>{% trans "Update Your Rating" %}</h4>
+          {% else %}
+            <h4>{% trans "Rate This Volunteer" %}</h4>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ volunteer.get_full_name|default:volunteer.username }}</h5>
+          <p class="card-text text-muted">
+            <i class="fa fa-bookmark"></i> {% trans "Event" %}: {{ event.title }} |
+            <i class="fa fa-calendar"></i> {{ event.date|date:"F j, Y" }}
+          </p>
+          
+          <form method="post">
+            {% csrf_token %}
+            
+            {% bootstrap_form form %}
+            
+            <div class="form-group mt-4">
+              <button type="submit" class="btn btn-primary">
+                {% if update %}
+                  {% trans "Update Rating" %}
+                {% else %}
+                  {% trans "Submit Rating" %}
+                {% endif %}
+              </button>
+              <a href="{% url 'events:event_detail' pk=event.id %}" class="btn btn-outline-secondary">
+                {% trans "Cancel" %}
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

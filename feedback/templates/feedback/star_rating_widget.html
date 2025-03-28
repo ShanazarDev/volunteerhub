@@ -1,0 +1,78 @@
+{% load i18n %}
+
+<!-- Star Rating Widget -->
+<div class="star-rating-container mb-3">
+  <label class="form-label">{% trans "Your Rating" %}</label>
+  <div class="star-rating">
+    {% for i in "12345" %}
+    <span class="star {% if form.instance.rating >= forloop.counter or rating_value >= forloop.counter %}active{% endif %}" data-value="{{ forloop.counter }}">
+      <i class="fas fa-star"></i>
+    </span>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .star-rating {
+    display: flex;
+    font-size: 2rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+  .star {
+    color: #e4e5e9;
+    transition: color 0.2s ease;
+    margin-right: 0.25rem;
+  }
+  .star:hover,
+  .star.active {
+    color: #ffc107;
+  }
+  .star:hover ~ .star {
+    color: #e4e5e9;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.querySelector('.rating-value');
+    
+    stars.forEach(star => {
+      // Hover effects
+      star.addEventListener('mouseenter', () => {
+        const value = star.getAttribute('data-value');
+        
+        // Highlight stars up to the hovered one
+        stars.forEach(s => {
+          if (s.getAttribute('data-value') <= value) {
+            s.classList.add('hover');
+          } else {
+            s.classList.remove('hover');
+          }
+        });
+      });
+      
+      // Click to set rating
+      star.addEventListener('click', () => {
+        const value = star.getAttribute('data-value');
+        ratingInput.value = value;
+        
+        // Set active class on stars
+        stars.forEach(s => {
+          if (s.getAttribute('data-value') <= value) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+      });
+    });
+    
+    // Remove hover effect when leaving the container
+    const container = document.querySelector('.star-rating');
+    container.addEventListener('mouseleave', () => {
+      stars.forEach(s => s.classList.remove('hover'));
+    });
+  });
+</script>

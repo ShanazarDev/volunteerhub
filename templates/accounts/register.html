@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block title %}Register | VolunteerHub{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Create an Account</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.username.id_for_label }}">Username*</label>
+                                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if form.username.help_text %}
+                                <small class="form-text text-muted">{{ form.username.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.email.id_for_label }}">Email*</label>
+                                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                                <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}">
+                                {% if form.first_name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.first_name.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}">
+                                {% if form.last_name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.last_name.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Role*</label>
+                        <div class="d-flex">
+                            {% for radio in form.role %}
+                            <div class="form-check mr-4">
+                                {{ radio.tag }}
+                                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                    {{ radio.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.role.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.role.errors.0 }}
+                        </div>
+                        {% endif %}
+                        {% if form.role.help_text %}
+                        <small class="form-text text-muted">{{ form.role.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.bio.id_for_label }}">Bio</label>
+                        <textarea name="{{ form.bio.name }}" id="{{ form.bio.id_for_label }}" class="form-control {% if form.bio.errors %}is-invalid{% endif %}" rows="3">{{ form.bio.value|default:'' }}</textarea>
+                        {% if form.bio.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.bio.errors.0 }}
+                        </div>
+                        {% endif %}
+                        {% if form.bio.help_text %}
+                        <small class="form-text text-muted">{{ form.bio.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.phone.id_for_label }}">Phone</label>
+                                <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" value="{{ form.phone.value|default:'' }}">
+                                {% if form.phone.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.phone.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if form.phone.help_text %}
+                                <small class="form-text text-muted">{{ form.phone.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.telegram_username.id_for_label }}">Telegram Username</label>
+                                <input type="text" name="{{ form.telegram_username.name }}" id="{{ form.telegram_username.id_for_label }}" class="form-control {% if form.telegram_username.errors %}is-invalid{% endif %}" value="{{ form.telegram_username.value|default:'' }}">
+                                {% if form.telegram_username.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.telegram_username.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if form.telegram_username.help_text %}
+                                <small class="form-text text-muted">{{ form.telegram_username.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.password1.id_for_label }}">Password*</label>
+                                <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" required>
+                                {% if form.password1.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if form.password1.help_text %}
+                                <small class="form-text text-muted">{{ form.password1.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.password2.id_for_label }}">Confirm Password*</label>
+                                <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+                                {% if form.password2.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if form.password2.help_text %}
+                                <small class="form-text text-muted">{{ form.password2.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{% url 'accounts:login' %}">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

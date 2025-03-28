@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | VolunteerHub{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Profile Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-circle fa-6x text-primary"></i>
+                    <h3 class="mt-3">{{ user.get_full_name|default:user.username }}</h3>
+                    <span class="badge badge-info">{{ user.get_role_display }}</span>
+                </div>
+                
+                <div class="profile-details">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    
+                    {% if user.phone %}
+                    <p><strong>Phone:</strong> {{ user.phone }}</p>
+                    {% endif %}
+                    
+                    {% if user.telegram_username %}
+                    <p><strong>Telegram:</strong> @{{ user.telegram_username }}</p>
+                    {% endif %}
+                    
+                    {% if user.bio %}
+                    <p><strong>Bio:</strong> {{ user.bio }}</p>
+                    {% endif %}
+                </div>
+                
+                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-block mt-3">
+                    <i class="fas fa-edit mr-1"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">My Registered Events</h4>
+            </div>
+            <div class="card-body">
+                {% if registered_events %}
+                <div class="list-group">
+                    {% for registration in registered_events %}
+                    <a href="{% url 'events:event_detail' registration.event.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ registration.event.title }}</h5>
+                            <small>{{ registration.registered_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ registration.event.date|date:"F d, Y - H:i" }}</p>
+                        <small>
+                            <span class="badge badge-{% if registration.event.status == 'active' %}success{% elif registration.event.status == 'completed' %}secondary{% else %}danger{% endif %}">
+                                {{ registration.event.get_status_display }}
+                            </span>
+                            <span class="ml-2">{{ registration.event.location }}</span>
+                        </small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You haven't registered for any events yet.</p>
+                </div>
+                <a href="{% url 'events:event_list' %}" class="btn btn-primary">
+                    <i class="fas fa-search mr-1"></i> Find Events
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if user.is_organizer %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">My Organized Events</h4>
+            </div>
+            <div class="card-body">
+                {% if organized_events %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in organized_events %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'events:event_detail' event.id %}">{{ event.title }}</a>
+                                </td>
+                                <td>{{ event.date|date:"M d, Y - H:i" }}</td>
+                                <td>
+                                    <span class="badge badge-{% if event.status == 'active' %}success{% elif event.status == 'completed' %}secondary{% else %}danger{% endif %}">
+                                        {{ event.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ event.registered_count }}/{{ event.capacity }}</td>
+                                <td>
+                                    <a href="{% url 'events:event_update' event.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'events:event_delete' event.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You haven't organized any events yet.</p>
+                </div>
+                {% endif %}
+                <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-1"></i> Create Event
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

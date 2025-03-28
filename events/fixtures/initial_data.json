@@ -1,0 +1,58 @@
+[
+  {
+    "model": "events.category",
+    "pk": 1,
+    "fields": {
+      "name": "Animals",
+      "description": "Events related to animal welfare and protection"
+    }
+  },
+  {
+    "model": "events.category",
+    "pk": 2,
+    "fields": {
+      "name": "Ecology",
+      "description": "Environmental protection and conservation activities"
+    }
+  },
+  {
+    "model": "events.category",
+    "pk": 3,
+    "fields": {
+      "name": "Children",
+      "description": "Activities and events helping children in need"
+    }
+  },
+  {
+    "model": "events.category",
+    "pk": 4,
+    "fields": {
+      "name": "Elderly",
+      "description": "Activities supporting elderly people"
+    }
+  },
+  {
+    "model": "events.category",
+    "pk": 5,
+    "fields": {
+      "name": "Education",
+      "description": "Educational initiatives and activities"
+    }
+  },
+  {
+    "model": "events.category",
+    "pk": 6,
+    "fields": {
+      "name": "Healthcare",
+      "description": "Health-related volunteering opportunities"
+    }
+  },
+  {
+    "model": "events.category",
+    "pk": 7,
+    "fields": {
+      "name": "Community",
+      "description": "Community building and support events"
+    }
+  }
+]

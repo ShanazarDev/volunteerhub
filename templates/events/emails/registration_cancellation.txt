@@ -1,0 +1,24 @@
+VolunteerHub - Event Registration Cancellation
+===================================================
+
+Hello {{ user.get_full_name|default:user.username }},
+
+You have successfully canceled your registration for the following event:
+
+EVENT DETAILS:
+--------------
+Title: {{ event.title }}
+Date and Time: {{ event.date }}
+Location: {{ event.location }}
+Category: {{ event.category.name }}
+Organizer: {{ event.organizer.get_full_name|default:event.organizer.username }}
+
+We're sorry you won't be able to join this event. We hope to see you at other events in the future!
+
+If you canceled by mistake, you can re-register for the event through our platform (subject to availability).
+
+For any questions or further information, please contact the event organizer or respond to this email.
+
+---
+© {{ current_year }} {{ site_name }} - Connect volunteers and opportunities
+This email was sent to {{ user.email }} because you canceled your registration for an event on our platform.

@@ -1,0 +1,24 @@
+VolunteerHub - Event Registration Confirmation
+===================================================
+
+Hello {{ user.get_full_name|default:user.username }},
+
+Thank you for registering for the following event:
+
+EVENT DETAILS:
+--------------
+Title: {{ event.title }}
+Date and Time: {{ event.date }}
+Location: {{ event.location }}
+Category: {{ event.category.name }}
+Organizer: {{ event.organizer.get_full_name|default:event.organizer.username }}
+
+We're excited to have you join us! Don't forget to mark your calendar for this event.
+
+If you can no longer attend this event, please let us know by canceling your registration through the event page.
+
+For any questions or further information, please contact the event organizer or respond to this email.
+
+---
+© {{ current_year }} {{ site_name }} - Connect volunteers and opportunities
+This email was sent to {{ user.email }} because you registered for an event on our platform.

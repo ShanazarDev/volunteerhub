@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block title %}{% translate "Rate Organizer" %} - {{ organizer.get_full_name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Star rating styles */
+  .star-rating {
+    display: inline-block;
+    font-size: 0;
+    white-space: nowrap;
+  }
+  
+  .star-rating-input {
+    display: none;
+  }
+  
+  .star-rating-star {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+  }
+  
+  .star-rating-star:hover,
+  .star-rating-star:hover ~ .star-rating-star,
+  .star-rating-input:checked ~ .star-rating-star {
+    color: #FFD700;
+  }
+  
+  /* Reverse the stars so they work intuitively */
+  .star-rating {
+    direction: rtl;
+  }
+  
+  .star-rating-star {
+    direction: ltr;
+  }
+  
+  .star-rating-text {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  /* Highlight selected star and all stars to its right */
+  .star-rating-input:checked + .star-rating-star,
+  .star-rating-input:checked + .star-rating-star ~ .star-rating-star {
+    color: #FFD700;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">{% translate "Rate Organizer" %}</h3>
+        </div>
+        <div class="card-body">
+          <h4 class="card-title">{{ organizer.get_full_name|default:organizer.username }}</h4>
+          <p class="text-muted mb-4">
+            {% translate "For event" %}: {{ event.title }} ({{ event.date|date:"F j, Y" }})
+          </p>
+          
+          {% if update %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> {% translate "You have already rated this organizer. You can update your rating below." %}
+            </div>
+          {% endif %}
+          
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group text-center">
+              <label class="form-label">{% translate "How would you rate this organizer?" %}</label>
+              <div class="mb-3">
+                {{ form.rating }}
+                <div class="star-rating" id="star-rating">
+                  <input type="radio" name="star-rating" value="5" id="star5" class="star-rating-input" {% if rating_value == 5 %}checked{% endif %} />
+                  <label for="star5" class="star-rating-star"><i class="fas fa-star"></i></label>
+                  
+                  <input type="radio" name="star-rating" value="4" id="star4" class="star-rating-input" {% if rating_value == 4 %}checked{% endif %} />
+                  <label for="star4" class="star-rating-star"><i class="fas fa-star"></i></label>
+                  
+                  <input type="radio" name="star-rating" value="3" id="star3" class="star-rating-input" {% if rating_value == 3 %}checked{% endif %} />
+                  <label for="star3" class="star-rating-star"><i class="fas fa-star"></i></label>
+                  
+                  <input type="radio" name="star-rating" value="2" id="star2" class="star-rating-input" {% if rating_value == 2 %}checked{% endif %} />
+                  <label for="star2" class="star-rating-star"><i class="fas fa-star"></i></label>
+                  
+                  <input type="radio" name="star-rating" value="1" id="star1" class="star-rating-input" {% if rating_value == 1 %}checked{% endif %} />
+                  <label for="star1" class="star-rating-star"><i class="fas fa-star"></i></label>
+                </div>
+                <span class="star-rating-text">{% translate "Select a rating" %}</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="{{ form.comment.id_for_label }}">{% translate "Your feedback" %}</label>
+              {{ form.comment }}
+              {% if form.comment.errors %}
+                <div class="invalid-feedback">
+                  {{ form.comment.errors }}
+                </div>
+              {% endif %}
+              <small class="form-text text-muted">
+                {% translate "Your honest feedback helps organizers improve." %}
+              </small>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">
+                {% if update %}
+                  {% translate "Update Rating" %}
+                {% else %}
+                  {% translate "Submit Rating" %}
+                {% endif %}
+              </button>
+              <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-outline-secondary">
+                {% translate "Cancel" %}
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all star rating inputs
+    const starInputs = document.querySelectorAll('input[name="star-rating"]');
+    // Get the hidden rating input field
+    const ratingInput = document.querySelector('.rating-value');
+    
+    // Set initial value if there's a rating_value
+    {% if rating_value %}
+      ratingInput.value = {{ rating_value }};
+    {% endif %}
+    
+    // Add event listeners to each star
+    starInputs.forEach(function(input) {
+      input.addEventListener('change', function() {
+        // Update the hidden field value when a star is clicked
+        ratingInput.value = this.value;
+        console.log('Rating set to: ' + this.value);
+      });
+    });
+  });
+</script>
+{% endblock %}

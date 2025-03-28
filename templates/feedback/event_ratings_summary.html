@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% translate "Event Ratings" %} - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <!-- Event info card -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">{{ event.title }}</h4>
+        </div>
+        <div class="card-body">
+          <p class="mb-2">
+            <i class="fas fa-calendar-alt"></i> {{ event.date|date:"F j, Y, g:i a" }}
+          </p>
+          <p class="mb-2">
+            <i class="fas fa-map-marker-alt"></i> {{ event.location }}
+          </p>
+          <p class="mb-2">
+            <i class="fas fa-user"></i> {% translate "Organized by" %} 
+            <a href="{% url 'feedback:user_ratings' event.organizer.pk %}">
+              {{ event.organizer.get_full_name|default:event.organizer.username }}
+            </a>
+          </p>
+          <p class="mb-2">
+            <i class="fas fa-users"></i> {{ event.registered_count }} / {{ event.capacity }} {% translate "participants" %}
+          </p>
+          <p>
+            <span class="badge {% if event.status == 'active' %}bg-success{% elif event.status == 'completed' %}bg-secondary{% else %}bg-danger{% endif %}">
+              {{ event.get_status_display }}
+            </span>
+          </p>
+          
+          <div class="mt-3">
+            <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-outline-primary btn-block">
+              <i class="fas fa-arrow-left"></i> {% translate "Back to Event" %}
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Event category card -->
+      <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">{% translate "Category" %}</h5>
+        </div>
+        <div class="card-body">
+          <h5>{{ event.category.name }}</h5>
+          <p>{{ event.category.description }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8">
+      <!-- Overall ratings summary -->
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">{% translate "Overall Rating" %}</h4>
+        </div>
+        <div class="card-body text-center">
+          <div class="display-1 mb-2">
+            {{ avg_event_rating|floatformat:1 }}
+            <small class="text-muted">/5</small>
+          </div>
+          <div class="text-warning mb-3" style="font-size: 2rem;">
+            {% for i in "12345" %}
+              {% if forloop.counter <= avg_event_rating|add:"0.5"|floatformat:"0" %}
+                <i class="fas fa-star"></i>
+              {% else %}
+                <i class="far fa-star"></i>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <p class="text-muted">
+            {% blocktranslate with count=event_feedback.count %}
+              Based on {{ count }} reviews
+            {% endblocktranslate %}
+          </p>
+          
+          <!-- Rating distribution -->
+          {% if event_feedback %}
+            <div class="row justify-content-center mt-4">
+              <div class="col-md-8">
+                <h5>{% translate "Rating Distribution" %}</h5>
+                
+                {% with count5=event_feedback|dictsort:"rating"|dictsortreversed:"rating"|slice:":5"|length %}
+                {% with count4=event_feedback|dictsort:"rating"|dictsortreversed:"rating"|slice:"5:"|filter:"rating=4"|length %}
+                {% with count3=event_feedback|dictsort:"rating"|dictsortreversed:"rating"|filter:"rating=3"|length %}
+                {% with count2=event_feedback|dictsort:"rating"|dictsortreversed:"rating"|filter:"rating=2"|length %}
+                {% with count1=event_feedback|dictsort:"rating"|dictsortreversed:"rating"|filter:"rating=1"|length %}
+                
+                <div class="d-flex align-items-center mb-1">
+                  <div class="me-2">5 <i class="fas fa-star text-warning"></i></div>
+                  <div class="progress flex-grow-1">
+                    <div class="progress-bar bg-success" style="width: {% if event_feedback.count > 0 %}{{ count5|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                  </div>
+                  <div class="ms-2">{{ count5 }}</div>
+                </div>
+                
+                <div class="d-flex align-items-center mb-1">
+                  <div class="me-2">4 <i class="fas fa-star text-warning"></i></div>
+                  <div class="progress flex-grow-1">
+                    <div class="progress-bar bg-success" style="width: {% if event_feedback.count > 0 %}{{ count4|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                  </div>
+                  <div class="ms-2">{{ count4 }}</div>
+                </div>
+                
+                <div class="d-flex align-items-center mb-1">
+                  <div class="me-2">3 <i class="fas fa-star text-warning"></i></div>
+                  <div class="progress flex-grow-1">
+                    <div class="progress-bar bg-warning" style="width: {% if event_feedback.count > 0 %}{{ count3|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                  </div>
+                  <div class="ms-2">{{ count3 }}</div>
+                </div>
+                
+                <div class="d-flex align-items-center mb-1">
+                  <div class="me-2">2 <i class="fas fa-star text-warning"></i></div>
+                  <div class="progress flex-grow-1">
+                    <div class="progress-bar bg-danger" style="width: {% if event_feedback.count > 0 %}{{ count2|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                  </div>
+                  <div class="ms-2">{{ count2 }}</div>
+                </div>
+                
+                <div class="d-flex align-items-center mb-1">
+                  <div class="me-2">1 <i class="fas fa-star text-warning"></i></div>
+                  <div class="progress flex-grow-1">
+                    <div class="progress-bar bg-danger" style="width: {% if event_feedback.count > 0 %}{{ count1|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                  </div>
+                  <div class="ms-2">{{ count1 }}</div>
+                </div>
+                
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Reviews list -->
+      <div class="card mb-4">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">{% translate "Reviews" %}</h4>
+          
+          {% if request.user.is_authenticated and event.status == 'completed' %}
+            <a href="{% url 'feedback:event_feedback' event.pk %}" class="btn btn-sm btn-outline-dark">
+              <i class="fas fa-edit"></i> {% translate "Add Review" %}
+            </a>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          {% if event_feedback %}
+            {% for feedback in event_feedback %}
+              <div class="mb-4 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="mb-0">
+                      <strong>
+                        <a href="{% url 'feedback:user_ratings' feedback.user.pk %}">
+                          {{ feedback.user.get_full_name|default:feedback.user.username }}
+                        </a>
+                      </strong>
+                    </p>
+                    <p class="text-muted small">{{ feedback.created_at|date:"F j, Y" }}</p>
+                  </div>
+                  <div class="text-warning">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= feedback.rating %}
+                        <i class="fas fa-star"></i>
+                      {% else %}
+                        <i class="far fa-star"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+                {% if feedback.comment %}
+                  <p class="mt-2 mb-0">{{ feedback.comment }}</p>
+                {% else %}
+                  <p class="text-muted fst-italic mt-2 mb-0">{% translate "No comment provided." %}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info">
+              <h5 class="alert-heading">{% translate "No reviews yet" %}</h5>
+              <p>{% translate "This event hasn't received any reviews yet." %}</p>
+              
+              {% if request.user.is_authenticated and event.registrations.filter(user=request.user, attended=True).exists %}
+                <hr>
+                <p class="mb-0">
+                  <a href="{% url 'feedback:event_feedback' event.pk %}" class="btn btn-primary">
+                    <i class="fas fa-star"></i> {% translate "Be the first to review" %}
+                  </a>
+                </p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

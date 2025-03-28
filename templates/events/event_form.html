@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if form.instance.pk %}Edit Event: {{ form.instance.title }}{% else %}Create New Event{% endif %} | VolunteerHub
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    {% if form.instance.pk %}
+                    <i class="fas fa-edit mr-2"></i>Edit Event
+                    {% else %}
+                    <i class="fas fa-plus-circle mr-2"></i>Create New Event
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">Title*</label>
+                        <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" 
+                               class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                               value="{{ form.title.value|default:'' }}" required>
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.title.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}">Description*</label>
+                        <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" 
+                                  class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  rows="4" required>{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.category.id_for_label }}">Category*</label>
+                                <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" 
+                                        class="form-control {% if form.category.errors %}is-invalid{% endif %}" required>
+                                    {% for choice in form.category.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.category.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.category.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.category.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.date.id_for_label }}">Date and Time*</label>
+                                <input type="datetime-local" name="{{ form.date.name }}" id="{{ form.date.id_for_label }}" 
+                                       class="form-control {% if form.date.errors %}is-invalid{% endif %}" 
+                                       value="{{ form.date.value|date:'Y-m-d\TH:i' }}" required>
+                                {% if form.date.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.date.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.location.id_for_label }}">Location*</label>
+                                <input type="text" name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" 
+                                       class="form-control {% if form.location.errors %}is-invalid{% endif %}" 
+                                       value="{{ form.location.value|default:'' }}" required>
+                                {% if form.location.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.location.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.capacity.id_for_label }}">Capacity (number of volunteers)*</label>
+                                <input type="number" name="{{ form.capacity.name }}" id="{{ form.capacity.id_for_label }}" 
+                                       class="form-control {% if form.capacity.errors %}is-invalid{% endif %}" 
+                                       value="{{ form.capacity.value|default:'' }}" min="1" required>
+                                {% if form.capacity.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.capacity.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.status.id_for_label }}">Status*</label>
+                        <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}" 
+                                class="form-control {% if form.status.errors %}is-invalid{% endif %}" required>
+                            {% for choice in form.status.field.choices %}
+                            <option value="{{ choice.0 }}" {% if form.status.value == choice.0 %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.status.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group d-flex">
+                        <button type="submit" class="btn btn-primary mr-2">
+                            {% if form.instance.pk %}Update Event{% else %}Create Event{% endif %}
+                        </button>
+                        <a href="{% if form.instance.pk %}{% url 'events:event_detail' form.instance.pk %}{% else %}{% url 'events:event_list' %}{% endif %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

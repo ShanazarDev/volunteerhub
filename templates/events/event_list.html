@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Volunteer Events</h1>
+    
+    <div class="row">
+        <!-- Filter sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Filter Events</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'events:event_list' %}">
+                        {% bootstrap_form filter_form %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary">Clear Filters</a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        Showing <strong>{{ page_obj.paginator.count }}</strong> of {{ total_events_count }} events
+                        ({{ active_events_count }} active)
+                    </small>
+                </div>
+            </div>
+            
+            {% if user.is_organizer %}
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <a href="{% url 'events:event_create' %}" class="btn btn-success">
+                        <i class="fas fa-plus-circle"></i> Create New Event
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Event list -->
+        <div class="col-md-9">
+            {% if events %}
+                <div class="mb-3">
+                    {% if request.GET %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-filter"></i> Filtered results - {{ page_obj.paginator.count }} events found
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% for event in events %}
+                    <div class="card mb-4 {% if event.status == 'completed' %}border-secondary{% elif event.status == 'cancelled' %}border-danger{% else %}border-success{% endif %}">
+                        <div class="card-header d-flex justify-content-between align-items-center 
+                                    {% if event.status == 'completed' %}bg-secondary text-white{% elif event.status == 'cancelled' %}bg-danger text-white{% else %}bg-success text-white{% endif %}">
+                            <h5 class="mb-0">{{ event.title }}</h5>
+                            <span class="badge {% if event.status == 'active' %}bg-light text-success{% elif event.status == 'completed' %}bg-light text-secondary{% else %}bg-light text-danger{% endif %}">
+                                {{ event.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p><strong>Category:</strong> {{ event.category.name }}</p>
+                                    <p><strong>Date:</strong> {{ event.date|date:"F j, Y, g:i a" }}</p>
+                                    <p><strong>Location:</strong> {{ event.location }}</p>
+                                    <p>{{ event.description|truncatewords:30 }}</p>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="mb-3">
+                                        <span class="display-4">{{ event.registered_count }}</span> / {{ event.capacity }}
+                                        <br>
+                                        <small class="text-muted">Volunteers registered</small>
+                                    </div>
+                                    
+                                    <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-primary">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Organized by {{ event.organizer.get_full_name|default:event.organizer.username }}</small>
+                                <small class="text-muted">Created {{ event.created_at|timesince }} ago</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if filter_params %}&{{ filter_params }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_params %}&{{ filter_params }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&laquo;&laquo;</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&laquo;</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if filter_params %}&{{ filter_params }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_params %}&{{ filter_params }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if filter_params %}&{{ filter_params }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&raquo;</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&raquo;&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">No events found!</h4>
+                    <p>There are no events matching your filters. Try adjusting your search criteria.</p>
+                    {% if user.is_organizer %}
+                        <hr>
+                        <p class="mb-0">
+                            <a href="{% url 'events:event_create' %}" class="btn btn-success">
+                                <i class="fas fa-plus-circle"></i> Create New Event
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

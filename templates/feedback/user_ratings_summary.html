@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block title %}
+  {% if user_profile == request.user %}
+    {% translate "My Ratings" %}
+  {% else %}
+    {% translate "Ratings for" %} {{ user_profile.get_full_name|default:user_profile.username }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-10 offset-md-1">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">
+            {% if user_profile == request.user %}
+              {% translate "My Ratings" %}
+            {% else %}
+              {% translate "Ratings for" %} {{ user_profile.get_full_name|default:user_profile.username }}
+            {% endif %}
+            
+            {% if rating_type == 'organizer' %}
+              <span class="badge badge-light ml-2">{% translate "Organizer" %}</span>
+            {% else %}
+              <span class="badge badge-light ml-2">{% translate "Volunteer" %}</span>
+            {% endif %}
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-4 text-center">
+              <div class="rating-summary bg-light p-3 rounded">
+                <h4 class="rating-average mb-0">{{ avg_rating|floatformat:1 }}</h4>
+                <div class="star-display">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= avg_rating|add:0.5|floatformat:0 %}
+                      <i class="fas fa-star text-warning"></i>
+                    {% else %}
+                      <i class="far fa-star text-muted"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <p class="text-muted mt-2">
+                  {% translate "Based on" %} {{ rating_count }} {% translate "ratings" %}
+                </p>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <h5>{% translate "Rating Summary" %}</h5>
+              <p>
+                {% if rating_type == 'organizer' %}
+                  {% if avg_rating >= 4.5 %}
+                    {% translate "An outstanding organizer who consistently creates well-planned events and provides excellent support to volunteers." %}
+                  {% elif avg_rating >= 3.5 %}
+                    {% translate "A good organizer who plans events well and is responsive to volunteer needs." %}
+                  {% elif avg_rating >= 2.5 %}
+                    {% translate "A decent organizer with some areas for improvement in event planning or volunteer coordination." %}
+                  {% else %}
+                    {% translate "This organizer may need to improve their event planning, communication, or volunteer support." %}
+                  {% endif %}
+                {% else %}
+                  {% if avg_rating >= 4.5 %}
+                    {% translate "An exceptional volunteer who consistently exceeds expectations and makes a significant impact." %}
+                  {% elif avg_rating >= 3.5 %}
+                    {% translate "A reliable volunteer who consistently meets expectations and contributes positively." %}
+                  {% elif avg_rating >= 2.5 %}
+                    {% translate "A volunteer who generally meets basic expectations but has some areas for growth." %}
+                  {% else %}
+                    {% translate "This volunteer may need to improve their reliability, contribution, or adherence to expectations." %}
+                  {% endif %}
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          
+          <h5 class="mt-4">{% translate "Recent Ratings" %}</h5>
+          
+          {% if recent_ratings %}
+            <div class="list-group">
+              {% for rating in recent_ratings %}
+                <div class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-1">
+                        {% if rating_type == 'organizer' %}
+                          {% translate "From" %}: {{ rating.volunteer.get_full_name|default:rating.volunteer.username }}
+                        {% else %}
+                          {% translate "From" %}: {{ rating.organizer.get_full_name|default:rating.organizer.username }}
+                        {% endif %}
+                      </h6>
+                      <small class="text-muted">{% translate "Event" %}: {{ rating.event.title }}</small>
+                      <p>{{ rating.comment|default:"" }}</p>
+                    </div>
+                    <div class="rating-display text-right">
+                      <div class="star-display">
+                        {% for i in "12345" %}
+                          {% if forloop.counter <= rating.rating %}
+                            <i class="fas fa-star text-warning"></i>
+                          {% else %}
+                            <i class="far fa-star text-muted"></i>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      <small class="text-muted">{{ rating.created_at|date:"M d, Y" }}</small>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              {% if user_profile == request.user %}
+                {% translate "You haven't received any ratings yet." %}
+              {% else %}
+                {% translate "This user hasn't received any ratings yet." %}
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="text-center mb-4">
+        <a href="{% url 'events:event_list' %}" class="btn btn-primary">
+          {% translate "Browse Events" %}
+        </a>
+        {% if user_profile == request.user %}
+          <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary ml-2">
+            {% translate "Back to My Profile" %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="star-rating">
+  {% for widget in widget.subwidgets %}
+    <input type="radio" name="{{ widget.name }}" value="{{ widget.data.value }}" id="{{ widget.attrs.id }}"
+      {% if widget.data.selected %}checked{% endif %}
+      class="star-rating-input" />
+    <label for="{{ widget.attrs.id }}" class="star-rating-star {% if widget.data.selected %}selected{% endif %}">
+      <i class="fas fa-star"></i>
+    </label>
+  {% endfor %}
+</div>
+<span class="star-rating-text">{% translate "Select a rating" %}</span>

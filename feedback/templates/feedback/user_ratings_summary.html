@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}
+  {% if user_profile == request.user %}
+    {% trans "My Ratings" %}
+  {% else %}
+    {% trans "Ratings for" %} {{ user_profile.get_full_name|default:user_profile.username }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-10 offset-md-1">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4>
+            {% if user_profile == request.user %}
+              {% trans "My Ratings Summary" %}
+            {% else %}
+              {% trans "Ratings for" %} {{ user_profile.get_full_name|default:user_profile.username }}
+            {% endif %}
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 text-center">
+              <div class="user-info">
+                <h5>{{ user_profile.get_full_name|default:user_profile.username }}</h5>
+                <p class="text-muted">
+                  <i class="fa fa-user"></i> {{ user_profile.get_role_display }} |
+                  <i class="fa fa-calendar"></i> {% trans "Joined" %}: {{ user_profile.date_joined|date:"F Y" }}
+                </p>
+                {% if user_profile.bio %}
+                  <p>{{ user_profile.bio }}</p>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="ratings-overview">
+                <div class="average-rating">
+                  <h3>
+                    {% trans "Average Rating" %}: 
+                    <span class="stars">
+                      {% with ''|center:avg_rating as range %}
+                        {% for _ in range %}★{% endfor %}
+                      {% endwith %}
+                      {% with ''|center:5|slice:avg_rating as range %}
+                        {% for _ in range %}☆{% endfor %}
+                      {% endwith %}
+                    </span>
+                    <span class="rating-numeric">{{ avg_rating|floatformat:1 }}/5.0</span>
+                  </h3>
+                  <p class="text-muted">
+                    {% blocktrans with count=rating_count %}
+                      Based on {{ count }} ratings
+                    {% endblocktrans %}
+                  </p>
+                </div>
+                
+                {% if rating_type == 'organizer' %}
+                  <p>
+                    {% trans "As an organizer, these ratings reflect how volunteers rate your event organization, communication, and coordination skills." %}
+                  </p>
+                {% else %}
+                  <p>
+                    {% trans "As a volunteer, these ratings reflect how event organizers rate your participation, reliability, and contribution." %}
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-4">
+            <div class="col-12">
+              <h4>{% trans "Recent Ratings" %} ({{ recent_ratings|length }})</h4>
+              
+              {% if recent_ratings %}
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>{% trans "Event" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        {% if rating_type == 'organizer' %}
+                          <th>{% trans "From Volunteer" %}</th>
+                        {% else %}
+                          <th>{% trans "From Organizer" %}</th>
+                        {% endif %}
+                        <th>{% trans "Rating" %}</th>
+                        <th>{% trans "Comment" %}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for rating in recent_ratings %}
+                        <tr>
+                          <td>
+                            <a href="{% url 'events:event_detail' pk=rating.event.id %}">
+                              {{ rating.event.title }}
+                            </a>
+                          </td>
+                          <td>{{ rating.created_at|date:"M d, Y" }}</td>
+                          {% if rating_type == 'organizer' %}
+                            <td>{{ rating.volunteer.get_full_name|default:rating.volunteer.username }}</td>
+                          {% else %}
+                            <td>{{ rating.organizer.get_full_name|default:rating.organizer.username }}</td>
+                          {% endif %}
+                          <td>
+                            <span class="stars">
+                              {% with ''|center:rating.rating as range %}
+                                {% for _ in range %}★{% endfor %}
+                              {% endwith %}
+                            </span>
+                          </td>
+                          <td>{{ rating.comment|default:"-" }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="alert alert-info">
+                  {% trans "No ratings yet." %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .stars {
+    color: #ffc107;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+  .rating-numeric {
+    font-size: 1.2rem;
+    color: #555;
+    margin-left: 10px;
+  }
+</style>
+{% endblock %}

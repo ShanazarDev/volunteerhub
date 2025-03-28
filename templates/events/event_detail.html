@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} | VolunteerHub{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">{{ event.title }}</h2>
+            <span class="badge badge-{% if event.status == 'active' %}success{% elif event.status == 'completed' %}secondary{% else %}danger{% endif %} p-2">
+                {{ event.get_status_display }}
+            </span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h5 class="card-title text-muted">Details</h5>
+                <p class="card-text">{{ event.description }}</p>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Event Information</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="far fa-calendar-alt mr-2"></i>
+                                <strong>Date:</strong> {{ event.date|date:"F d, Y" }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-clock mr-2"></i>
+                                <strong>Time:</strong> {{ event.date|date:"H:i" }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <strong>Location:</strong> {{ event.location }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-tags mr-2"></i>
+                                <strong>Category:</strong> {{ event.category.name }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <strong>Organizer:</strong> {{ event.organizer.get_full_name|default:event.organizer.username }}
+                            </li>
+                            <li>
+                                <i class="fas fa-users mr-2"></i>
+                                <strong>Capacity:</strong> {{ event.registered_count }}/{{ event.capacity }} registered
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress mb-4">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ event.registered_count|floatformat:0 }}%;" 
+                 aria-valuenow="{{ event.registered_count }}" aria-valuemin="0" aria-valuemax="{{ event.capacity }}">
+                {{ event.registered_count }}/{{ event.capacity }}
+            </div>
+        </div>
+        
+        {% if user.is_authenticated %}
+            {% if event.status == 'active' and not is_registered and event.registered_count < event.capacity %}
+                <a href="{% url 'events:event_register' event.id %}" class="btn btn-success">
+                    <i class="fas fa-user-plus mr-1"></i> Register for this Event
+                </a>
+            {% elif is_registered %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle mr-1"></i> You are registered for this event.
+                    
+                    {% if not event.is_past %}
+                        <a href="{% url 'events:event_cancel' event.id %}" class="btn btn-sm btn-outline-danger ml-3">
+                            Cancel Registration
+                        </a>
+                    {% else %}
+                        <!-- Event is past and user was registered, show feedback options -->
+                        <div class="mt-2">
+                            <a href="{% url 'feedback:event_feedback' event_id=event.id %}" class="btn btn-sm btn-primary mr-2">
+                                <i class="fas fa-star mr-1"></i> Rate Event
+                            </a>
+                            {% if user != event.organizer %}
+                            <a href="{% url 'feedback:rate_organizer' event_id=event.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-user-tie mr-1"></i> Rate Organizer
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% elif event.registered_count >= event.capacity %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle mr-1"></i> This event has reached its capacity.
+                </div>
+            {% elif event.status != 'active' %}
+                <div class="alert alert-secondary">
+                    <i class="fas fa-info-circle mr-1"></i> Registration is not available for this event.
+                </div>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt mr-1"></i> Login to Register
+            </a>
+        {% endif %}
+        
+        {% if user.is_authenticated and user == event.organizer %}
+        <div class="mt-4 d-flex">
+            <a href="{% url 'events:event_update' event.id %}" class="btn btn-outline-primary mr-2">
+                <i class="fas fa-edit mr-1"></i> Edit Event
+            </a>
+            <a href="{% url 'events:event_delete' event.id %}" class="btn btn-outline-danger">
+                <i class="fas fa-trash mr-1"></i> Delete Event
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if user.is_authenticated and user == event.organizer %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0">Registered Participants</h4>
+    </div>
+    <div class="card-body">
+        {% if event.registrations.all %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Registered On</th>
+                        {% if event.is_past %}
+                        <th>Attended</th>
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registration in event.registrations.all %}
+                    <tr>
+                        <td>{{ registration.user.get_full_name|default:"-" }}</td>
+                        <td>{{ registration.user.username }}</td>
+                        <td>{{ registration.user.email }}</td>
+                        <td>{{ registration.user.phone|default:"-" }}</td>
+                        <td>{{ registration.registered_at|date:"M d, Y H:i" }}</td>
+                        {% if event.is_past %}
+                        <td>
+                            <form method="post" action="{% url 'events:mark_attendance' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="registration_id" value="{{ registration.id }}">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="attendance-{{ registration.id }}" 
+                                           name="attended" {% if registration.attended %}checked{% endif %} onChange="this.form.submit()">
+                                    <label class="custom-control-label" for="attendance-{{ registration.id }}">
+                                        {% if registration.attended %}Attended{% else %}Not attended{% endif %}
+                                    </label>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{% url 'feedback:rate_volunteer' event_id=event.id volunteer_id=registration.user.id %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-star mr-1"></i> Rate Volunteer
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">No participants have registered for this event yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Events
+    </a>
+</div>
+{% endblock %}

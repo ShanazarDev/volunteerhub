@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Cancellation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            color: #2D6BA9;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 20px 0;
+            line-height: 1.6;
+        }
+        .event-details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2D6BA9;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">{{ site_name }}</div>
+            <h1>Event Registration Cancellation</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hello {{ user.get_full_name|default:user.username }},</p>
+            
+            <p>You have successfully canceled your registration for the following event:</p>
+            
+            <div class="event-details">
+                <h2>{{ event.title }}</h2>
+                <p><strong>Date and Time:</strong> {{ event.date }}</p>
+                <p><strong>Location:</strong> {{ event.location }}</p>
+                <p><strong>Category:</strong> {{ event.category.name }}</p>
+                <p><strong>Organizer:</strong> {{ event.organizer.get_full_name|default:event.organizer.username }}</p>
+            </div>
+            
+            <p>We're sorry you won't be able to join this event. We hope to see you at other events in the future!</p>
+            
+            <p>If you canceled by mistake, you can re-register for the event through our platform (subject to availability).</p>
+            
+            <p>For any questions or further information, please contact the event organizer or respond to this email.</p>
+            
+            <p>
+                <a href="{{ site_url }}{% url 'events:event_list' %}" class="button">Explore More Events</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© {{ current_year }} {{ site_name }} - Connect volunteers and opportunities</p>
+            <p>This email was sent to {{ user.email }} because you canceled your registration for an event on our platform.</p>
+        </div>
+    </div>
+</body>
+</html>

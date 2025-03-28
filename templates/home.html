@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}VolunteerHub - Connect, Volunteer, Make a Difference{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to VolunteerHub</h1>
+    <p class="lead">Connect with volunteer opportunities and make a positive impact in your community.</p>
+    <hr class="my-4">
+    <p>Join us today to discover events, register as a volunteer, or organize your own volunteering activities.</p>
+    <div class="mt-4">
+        {% if user.is_authenticated %}
+            <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-lg">Find Events</a>
+            {% if user.is_organizer %}
+                <a href="{% url 'events:event_create' %}" class="btn btn-outline-primary btn-lg ml-2">Create Event</a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Join Now</a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg ml-2">Sign In</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                <h3 class="card-title">Find Opportunities</h3>
+                <p class="card-text">Discover volunteer events in various categories that match your interests and schedule.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-hands-helping fa-3x mb-3 text-primary"></i>
+                <h3 class="card-title">Make an Impact</h3>
+                <p class="card-text">Join events and contribute your time and skills to causes that matter to you.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-bullhorn fa-3x mb-3 text-primary"></i>
+                <h3 class="card-title">Create Events</h3>
+                <p class="card-text">Organize your own volunteer events and connect with passionate volunteers.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2 class="text-center mb-4">How It Works</h2>
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <span class="h4 mb-0">1</span>
+                </div>
+                <h4>Sign Up</h4>
+                <p>Create your account as a volunteer or an organizer.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <span class="h4 mb-0">2</span>
+                </div>
+                <h4>Discover</h4>
+                <p>Find events that match your interests and availability.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <span class="h4 mb-0">3</span>
+                </div>
+                <h4>Register</h4>
+                <p>Sign up for events and receive confirmation.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="text-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <span class="h4 mb-0">4</span>
+                </div>
+                <h4>Volunteer</h4>
+                <p>Attend events and make a positive impact.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
