@@ -100,8 +100,8 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'accounts.User'
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'tk'
+TIME_ZONE = 'Asia/Ashgabat'
 USE_I18N = True
 USE_TZ = True
 

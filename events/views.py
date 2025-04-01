@@ -25,10 +25,8 @@ class EventListView(ListView):
     def get_queryset(self):
         queryset = Event.objects.select_related('category', 'organizer').all()
         
-        # Apply filters from the form
         form = EventFilterForm(self.request.GET)
         if form.is_valid():
-            # Search functionality
             if form.cleaned_data.get('search'):
                 search_query = form.cleaned_data['search']
                 queryset = queryset.filter(
@@ -37,28 +35,23 @@ class EventListView(ListView):
                     Q(location__icontains=search_query)
                 )
             
-            # Filter by category
             if form.cleaned_data.get('category'):
                 queryset = queryset.filter(category=form.cleaned_data['category'])
             
-            # Filter by status
             if form.cleaned_data.get('status'):
                 queryset = queryset.filter(status=form.cleaned_data['status'])
             
-            # Filter by date range
             if form.cleaned_data.get('date_from'):
                 queryset = queryset.filter(date__gte=form.cleaned_data['date_from'])
             
             if form.cleaned_data.get('date_to'):
                 queryset = queryset.filter(date__lte=form.cleaned_data['date_to'])
                 
-            # Filter by available spots
             if form.cleaned_data.get('available_spots'):
                 for event in queryset:
                     if event.available_spots <= 0:
                         queryset = queryset.exclude(id=event.id)
             
-            # Filter by organizer name
             if form.cleaned_data.get('organizer'):
                 organizer_query = form.cleaned_data['organizer']
                 queryset = queryset.filter(
@@ -67,14 +60,11 @@ class EventListView(ListView):
                     Q(organizer__username__icontains=organizer_query)
                 )
             
-            # Sort results
             if form.cleaned_data.get('sort_by'):
                 queryset = queryset.order_by(form.cleaned_data['sort_by'])
             else:
-                # Default sorting
                 queryset = queryset.order_by('status', '-date')
         else:
-            # Default to showing active events first
             queryset = queryset.order_by('status', '-date')
         
         return queryset
@@ -84,7 +74,6 @@ class EventListView(ListView):
         context['filter_form'] = EventFilterForm(self.request.GET or None)
         context['active_events_count'] = Event.objects.filter(status=Event.Status.ACTIVE).count()
         context['total_events_count'] = Event.objects.count()
-        # Get filter params for pagination links
         if self.request.GET:
             context['filter_params'] = '&'.join([f"{key}={value}" for key, value in self.request.GET.items() if key != 'page'])
         else:
@@ -102,7 +91,6 @@ class EventDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Check if current user is registered for this event
         if self.request.user.is_authenticated:
             context['is_registered'] = Registration.objects.filter(
                 user=self.request.user,
@@ -178,33 +166,27 @@ def register_for_event(request, pk):
     """
     event = get_object_or_404(Event, pk=pk)
     
-    # Check if event is active
     if event.status != Event.Status.ACTIVE:
         messages.error(request, 'Registration is not available for this event.')
         return redirect('events:event_detail', pk=pk)
     
-    # Check if event is full
     if event.registered_count >= event.capacity:
         messages.error(request, 'This event is already at full capacity.')
         return redirect('events:event_detail', pk=pk)
     
-    # Check if user is already registered
     if Registration.objects.filter(user=request.user, event=event).exists():
         messages.info(request, 'You are already registered for this event.')
         return redirect('events:event_detail', pk=pk)
     
-    # Check if user has an email set
     if not request.user.email:
         messages.warning(
             request, 
             'Please update your email address in your profile to receive confirmation emails.'
         )
     
-    # Register the user
     registration = Registration(user=request.user, event=event)
     registration.save()
     
-    # Send confirmation email
     if request.user.email:
         try:
             send_registration_confirmation_email(request.user, event)
@@ -226,18 +208,14 @@ def cancel_registration(request, pk):
     event = get_object_or_404(Event, pk=pk)
     registration = get_object_or_404(Registration, user=request.user, event=event)
     
-    # Only allow cancellation if the event is in the future
     if event.is_past:
         messages.error(request, 'Cannot cancel registration for past events.')
         return redirect('events:event_detail', pk=pk)
     
-    # Store user before deleting registration
     user = request.user
     
-    # Delete registration
     registration.delete()
     
-    # Send cancellation email
     if user.email:
         try:
             send_registration_cancellation_email(user, event)
@@ -268,12 +246,10 @@ def mark_attendance(request):
     registration = get_object_or_404(Registration, pk=registration_id)
     event = registration.event
     
-    # Only the event organizer can mark attendance
     if request.user != event.organizer:
         messages.error(request, 'You do not have permission to mark attendance for this event.')
         return redirect('events:event_detail', pk=event.id)
     
-    # Toggle attendance status
     registration.attended = not registration.attended
     registration.save()
     

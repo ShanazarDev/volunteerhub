@@ -112,7 +112,6 @@ class Registration(models.Model):
     class Meta:
         verbose_name = _('registration')
         verbose_name_plural = _('registrations')
-        # Ensure a user can register only once for a specific event
         unique_together = ['user', 'event']
     
     def __str__(self):

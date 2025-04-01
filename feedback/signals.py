@@ -13,12 +13,10 @@ def update_organizer_rating_stats(sender, instance, **kwargs):
     """
     organizer = instance.organizer
     
-    # Calculate new average rating
     avg_rating = OrganizerRating.objects.filter(
         organizer=organizer
     ).aggregate(avg=Avg('rating'))['avg'] or 0
     
-    # You can store this in User model if needed, or in a separate stats model
 
 
 @receiver(post_save, sender=VolunteerRating)
@@ -29,9 +27,7 @@ def update_volunteer_rating_stats(sender, instance, **kwargs):
     """
     volunteer = instance.volunteer
     
-    # Calculate new average rating
     avg_rating = VolunteerRating.objects.filter(
         volunteer=volunteer
     ).aggregate(avg=Avg('rating'))['avg'] or 0
     
-    # You can store this in User model if needed, or in a separate stats model

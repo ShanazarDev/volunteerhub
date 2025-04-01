@@ -54,9 +54,9 @@
         </div>
         
         <div class="progress mb-4">
-            <div class="progress-bar bg-success" role="progressbar" style="width: {{ event.registered_count|floatformat:0 }}%;" 
+            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio event.registered_count event.capacity 100 %}%;" 
                  aria-valuenow="{{ event.registered_count }}" aria-valuemin="0" aria-valuemax="{{ event.capacity }}">
-                {{ event.registered_count }}/{{ event.capacity }}
+                <b style="font-size: large;">{{ event.registered_count }}/{{ event.capacity }}</b>
             </div>
         </div>
         

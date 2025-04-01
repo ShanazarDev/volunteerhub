@@ -61,10 +61,8 @@ def profile_view(request):
     Display user profile information and event participation history.
     """
     user = request.user
-    # Get user's event registrations
     registered_events = user.registrations.all().order_by('-event__date')
     
-    # If user is organizer, get events they created
     if user.is_organizer():
         organized_events = user.events_created.all().order_by('-date')
     else:

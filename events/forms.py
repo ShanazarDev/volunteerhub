@@ -20,7 +20,6 @@ class EventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
-        # If this is a new event, set the default status to active
         if not self.instance.pk:
             self.fields['status'].initial = Event.Status.ACTIVE
 
@@ -98,4 +97,4 @@ class RegistrationForm(forms.ModelForm):
     """
     class Meta:
         model = Registration
-        fields = []  # No fields needed, just user and event from view
+        fields = []  

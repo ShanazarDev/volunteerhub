@@ -18,15 +18,12 @@ def event_feedback(request, event_id):
     """
     event = get_object_or_404(Event, pk=event_id)
     
-    # Check if user was registered for this event
     registration = get_object_or_404(Registration, user=request.user, event=event)
     
-    # Check if event is already in the past
     if not event.is_past:
         messages.error(request, _('You can only provide feedback for past events.'))
         return redirect('events:event_detail', pk=event_id)
     
-    # Check if user has already provided feedback for this event
     existing_feedback = EventFeedback.objects.filter(user=request.user, event=event).first()
     update = False
     
@@ -66,20 +63,16 @@ def rate_organizer(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     organizer = event.organizer
     
-    # Cannot rate yourself
     if request.user == organizer:
         messages.error(request, _('You cannot rate yourself.'))
         return redirect('events:event_detail', pk=event_id)
     
-    # Check if user was registered for this event
     registration = get_object_or_404(Registration, user=request.user, event=event)
     
-    # Check if event is already in the past
     if not event.is_past:
         messages.error(request, _('You can only provide ratings for past events.'))
         return redirect('events:event_detail', pk=event_id)
     
-    # Check if user has already rated this organizer for this event
     existing_rating = OrganizerRating.objects.filter(
         volunteer=request.user, 
         organizer=organizer,
@@ -125,25 +118,20 @@ def rate_volunteer(request, event_id, volunteer_id):
     event = get_object_or_404(Event, pk=event_id)
     volunteer = get_object_or_404(User, pk=volunteer_id)
     
-    # Only event organizer can rate volunteers
     if request.user != event.organizer:
         messages.error(request, _('Only the event organizer can rate volunteers.'))
         return redirect('events:event_detail', pk=event_id)
     
-    # Cannot rate yourself
     if request.user == volunteer:
         messages.error(request, _('You cannot rate yourself.'))
         return redirect('events:event_detail', pk=event_id)
     
-    # Check if volunteer was registered for this event
     registration = get_object_or_404(Registration, user=volunteer, event=event)
     
-    # Check if event is already in the past
     if not event.is_past:
         messages.error(request, _('You can only provide ratings for past events.'))
         return redirect('events:event_detail', pk=event_id)
     
-    # Check if organizer has already rated this volunteer for this event
     existing_rating = VolunteerRating.objects.filter(
         organizer=request.user, 
         volunteer=volunteer,
@@ -193,15 +181,12 @@ def user_ratings(request, user_id=None):
         user_profile = request.user
     
     if user_profile.role == User.Role.ORGANIZER:
-        # Show ratings received as an organizer
         ratings = OrganizerRating.objects.filter(organizer=user_profile)
         rating_type = 'organizer'
     else:
-        # Show ratings received as a volunteer
         ratings = VolunteerRating.objects.filter(volunteer=user_profile)
         rating_type = 'volunteer'
     
-    # Calculate average rating
     rating_stats = ratings.aggregate(
         avg_rating=Avg('rating'),
         rating_count=Count('id')

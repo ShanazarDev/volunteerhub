@@ -10,5 +10,4 @@ def event_saved(sender, instance, created, **kwargs):
     Signal to send Telegram notification when a new event is created.
     """
     if created and instance.status == Event.Status.ACTIVE:
-        # New active event created, send notification to Telegram
         send_telegram_notification(instance)

@@ -163,7 +163,7 @@ def main():
 # The bot will be initialized when the app starts
 if settings.DEBUG:
     logger.info("Bot will not start automatically in DEBUG mode")
-    main()
+    # main()
 else:
     # Start the bot in production
     main()
